@@ -10,8 +10,7 @@ total_bruto = 0
 total_taxas = 0
 total_descontos = 0
 total_liquido = 0
-total_rayssa = 0
-total_luana = 0
+
 
 # =========================
 # ROTA PRINCIPAL
@@ -21,36 +20,52 @@ def index():
     global total_bruto, total_taxas, total_descontos, total_liquido
 
     if request.method == "POST":
-        valor = float(request.form["valor"])
-        pagamento = request.form["pagamento"]
-        desconto = float(request.form["desconto"] or 0)
+        try:
+            valor = float(request.form["valor"])
+            pagamento = request.form["pagamento"]
+            desconto_protetico = float(request.form.get("desconto", 0))
 
-        # REGRA TAXA
-        if pagamento == "Dinheiro":
-            taxa = 0
-            valor_pos_taxa = valor
-        else:
-            taxa = valor * 0.10
-            valor_pos_taxa = valor - taxa
+            # REGRA TAXA
+            if pagamento == "Dinheiro":
+                taxa = 0
+                valor_pos_taxa = valor
+            else:
+                taxa = valor * 0.10
+                valor_pos_taxa = valor - taxa
 
-        valor_final = valor_pos_taxa - desconto
+            # ⚠️ NOVA REGRA CORRETA
+            valor_liquido = valor_pos_taxa
 
-        lancamentos.append({
-            "valor_original": valor,
-            "pagamento": pagamento,
-            "taxa": taxa,
-            "valor_pos_taxa": valor_pos_taxa,
-            "desconto": desconto,
-            "valor_final": valor_final
-        })
+            # divisão
+            rayssa = valor_liquido / 2
+            luana = (valor_liquido / 2) + desconto_protetico
 
-        total_bruto += valor
-        total_taxas += taxa
-        total_descontos += desconto
-        total_liquido += valor_final
+            # salva lançamento
+            lancamentos.append({
+                "valor_original": valor,
+                "pagamento": pagamento,
+                "taxa": taxa,
+                "valor_pos_taxa": valor_pos_taxa,
+                "desconto_protetico": desconto_protetico,
+                "valor_liquido": valor_liquido,
+                "rayssa": rayssa,
+                "luana": luana
+            })
+
+            # acumula totais
+            total_bruto += valor
+            total_taxas += taxa
+            total_descontos += desconto_protetico
+            total_liquido += valor_liquido
+
+        except Exception as e:
+            print("Erro:", e)
 
         return redirect("/")
 
+    # =========================
+    # CÁLCULO FINAL (FORA DO POST)
+    # =========================
     total_rayssa = total_liquido / 2
     total_luana = (total_liquido / 2) + total_descontos
 
@@ -64,6 +79,7 @@ def index():
         total_rayssa=total_rayssa,
         total_luana=total_luana
     )
+
 
 # =========================
 # LIMPAR DIA
@@ -82,10 +98,10 @@ def limpar():
 
 
 # =========================
-# RODAR
+# RODAR LOCAL (Render usa Gunicorn)
 # =========================
 import os
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
