@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect
+import os
 
 app = Flask(__name__)
 
@@ -8,7 +9,7 @@ app = Flask(__name__)
 lancamentos = []
 total_bruto = 0
 total_taxas = 0
-total_descontos = 0
+total_descontos = 0  # protético
 total_liquido = 0
 
 
@@ -33,12 +34,12 @@ def index():
                 taxa = valor * 0.10
                 valor_pos_taxa = valor - taxa
 
-            # ⚠️ NOVA REGRA CORRETA
-            valor_liquido = valor_pos_taxa
+            # 🔥 REGRA CORRETA DO PROTÉTICO
+            valor_base = valor_pos_taxa - desconto_protetico
 
-            # divisão
-            rayssa = valor_liquido / 2
-            luana = (valor_liquido / 2) + desconto_protetico
+            # divisão correta
+            rayssa = valor_base / 2
+            luana = (valor_base / 2) + desconto_protetico
 
             # salva lançamento
             lancamentos.append({
@@ -47,7 +48,7 @@ def index():
                 "taxa": taxa,
                 "valor_pos_taxa": valor_pos_taxa,
                 "desconto_protetico": desconto_protetico,
-                "valor_liquido": valor_liquido,
+                "valor_base": valor_base,
                 "rayssa": rayssa,
                 "luana": luana
             })
@@ -56,7 +57,7 @@ def index():
             total_bruto += valor
             total_taxas += taxa
             total_descontos += desconto_protetico
-            total_liquido += valor_liquido
+            total_liquido += valor_pos_taxa
 
         except Exception as e:
             print("Erro:", e)
@@ -64,10 +65,12 @@ def index():
         return redirect("/")
 
     # =========================
-    # CÁLCULO FINAL (FORA DO POST)
+    # CÁLCULO FINAL
     # =========================
-    total_rayssa = total_liquido / 2
-    total_luana = (total_liquido / 2) + total_descontos
+    total_base = total_liquido - total_descontos
+
+    total_rayssa = total_base / 2
+    total_luana = (total_base / 2) + total_descontos
 
     return render_template(
         "index.html",
@@ -98,10 +101,8 @@ def limpar():
 
 
 # =========================
-# RODAR LOCAL (Render usa Gunicorn)
+# RODAR LOCAL / SERVIDOR
 # =========================
-import os
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
