@@ -10,7 +10,8 @@ total_bruto = 0
 total_taxas = 0
 total_descontos = 0
 total_liquido = 0
-
+total_rayssa = 0
+total_luana = 0
 
 # =========================
 # ROTA PRINCIPAL
@@ -50,15 +51,19 @@ def index():
 
         return redirect("/")
 
+    total_rayssa = total_liquido / 2
+    total_luana = (total_liquido / 2) + total_descontos
+
     return render_template(
         "index.html",
         lancamentos=lancamentos,
         total_bruto=total_bruto,
         total_taxas=total_taxas,
         total_descontos=total_descontos,
-        total_liquido=total_liquido
+        total_liquido=total_liquido,
+        total_rayssa=total_rayssa,
+        total_luana=total_luana
     )
-
 
 # =========================
 # LIMPAR DIA

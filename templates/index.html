@@ -121,7 +121,7 @@
             <option>Débito</option>
         </select>
 
-        <input type="number" step="0.01" name="desconto" placeholder="Desconto" required>
+        <input type="number" step="0.01" name="desconto" placeholder="Desconto do protético" required>
 
         <button class="btn-primary">Adicionar Atendimento</button>
 
@@ -143,7 +143,7 @@
                 <p>Bruto: R$ {{ l.valor_original }}</p>
                 <p>Taxa: R$ {{ l.taxa }}</p>
                 <p>Após taxa: R$ {{ l.valor_pos_taxa }}</p>
-                <p>Desconto: R$ {{ l.desconto }}</p>
+                <p>Desconto do protético: R$ {{ l.desconto }}</p>
                 <p class="valor">Líquido: R$ {{ l.valor_final }}</p>
             </div>
         </details>
@@ -156,13 +156,13 @@
     <p>Atendimentos: {{ lancamentos|length }}</p>
     <p>Bruto: R$ {{ total_bruto }}</p>
     <p>Taxas: R$ {{ total_taxas }}</p>
-    <p>Descontos: R$ {{ total_descontos }}</p>
+    <p>Descontos Protético: R$ {{ total_descontos }}</p>
 
     <hr>
 
     <p><strong>Total: R$ {{ total_liquido }}</strong></p>
-    <p>Rayssa: R$ {{ total_liquido / 2 }}</p>
-    <p>Luana: R$ {{ total_liquido / 2 }}</p>
+    <p>Rayssa: R$ {{ total_rayssa }} -> 50% do valor líquido</p>
+    <p>Luana: R$ {{ total_luana }} -> 50% do total líquido + valor do protético</p>
 </div>
 
 <a href="/limpar">
